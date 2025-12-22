@@ -129,7 +129,7 @@ def simulate_async(network, steps, rng, initial_state=None):
     return traj
 
 
-def construct_several_networks(min_n=5, max_n=16, networks_per_size=1, max_parents=3, seed=0):
+def construct_several_networks(min_n=5, max_n=16, max_parents=3, seed=0):
     """
     Build multiple networks for each size in [min_n, max_n].
     Returns: {n: [network, network, ...], ...}
@@ -138,10 +138,7 @@ def construct_several_networks(min_n=5, max_n=16, networks_per_size=1, max_paren
     result = {}
 
     for n in range(min_n, max_n + 1):
-        nets = []
-        for _ in range(networks_per_size):
-            nets.append(random_boolean_network(n, max_parents, rng))
-        result[n] = nets
+        result[n] = random_boolean_network(n, max_parents, rng)
 
     return result
 
@@ -176,11 +173,12 @@ def save_trajectories_exact_input3_format(output_txt_path, trajectories):
 if __name__ == "__main__":
     UPDATE_MODE = "sync"  # "sync" or "async"
 
-    nets_by_size = construct_several_networks(min_n=5, max_n=16, networks_per_size=2, max_parents=3, seed=123)
+    nets_by_size = construct_several_networks(min_n=5, max_n=16, max_parents=3, seed=123)
 
-    n = 8
-    net = nets_by_size[n][0]
 
+    # picking one of the networks created and generating trajectiories of length = steps
+    network_size = 16
+    net = nets_by_size[network_size]
     rng = random.Random(999)
     steps = 40
 
