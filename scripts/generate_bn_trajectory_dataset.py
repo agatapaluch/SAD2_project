@@ -372,10 +372,6 @@ class BN():
 
         If path has no extension, '.txt' is appended.
         """
-        root, ext = os.path.splitext(path)
-        if ext == "":
-            path = path + ".txt"
-
         with open(path, "w") as f:
             # ---- Graph structure (parents -> node)
             f.write("# EDGES\n")
