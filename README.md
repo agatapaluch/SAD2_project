@@ -116,8 +116,8 @@ python2.7 src/create_random_network.py
 
 
 # Run generate_bn_trajectory_dataset.py script
-This script requires python3 and its dependencies are listed in `requirements3.txt` file.
-It is used to generate a random boolean network and sample a random trajectory dataset from it. For usage options run:
+Inside your python2.7 environment install requirements listed in `requirements.txt` file.
+The script is used to generate a random boolean network and sample a random trajectory dataset from it. For usage options run:
 ```bash
 python scripts/generate_bn_trajectory_dataset.py --help
 ```

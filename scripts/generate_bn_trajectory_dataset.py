@@ -1,19 +1,62 @@
 import os
 import argparse
+import copy
 import boolean
 import random
 import networkx as nx
-# import matplotlib.pyplot as plt
-# import matplotlib.colors as mcolors
 
-from networkx import generate_random_paths
+
+def generate_random_walks(graph, n_walks, walk_length, seed=None):
+    """
+    Generate random walks on a graph.
+
+    Parameters
+    ----------
+    graph : graph-like
+        graph[node] returns iterable of neighbors
+    n_walks : int
+        Number of random walks to generate
+    walk_length : int
+        Number of steps per walk (nodes = walk_length + 1)
+    seed : int or None
+        Random seed
+
+    Returns
+    -------
+    walks : list[list]
+        List of random walks (each is a list of visited nodes)
+    """
+    rng = random.Random(seed)
+    nodes = list(graph.nodes()) if hasattr(graph, "nodes") else list(graph.keys())
+
+    if not nodes:
+        raise ValueError("Graph has no nodes")
+
+    walks = []
+
+    for _ in range(n_walks):
+        current = rng.choice(nodes)
+        walk = [current]
+
+        for _ in range(walk_length):
+            neighbors = list(graph[current])
+
+            if not neighbors:
+                break  # dead end
+
+            current = rng.choice(neighbors)
+            walk.append(current)
+
+        walks.append(walk)
+
+    return walks
 
 
 class BN():
 
     __bool_algebra = boolean.BooleanAlgebra()
 
-    def __int_to_state(self, x: int) -> tuple[int, ...]:
+    def __int_to_state(self, x):
         """
         Helper method for converting a non-negative integer into a state in the form of a tuple of 0s and 1s.
     
@@ -30,7 +73,7 @@ class BN():
 
 
     @staticmethod
-    def __state_to_binary_str(state: tuple[int, ...]) -> str:
+    def __state_to_binary_str(state):
         """
         Converts a Boolean network state from a tuple of 0s and 1s into a binary string.
     
@@ -47,11 +90,11 @@ class BN():
         return bin_str
     
 
-    def generate_random_boolean_functions(self, list_of_nodes: list[str], max_parents: int = 3, allow_self_parent: bool = False):
+    def generate_random_boolean_functions(self, list_of_nodes, max_parents, allow_self_parent = False):
         """
         Generates random boolean functions in boolean.py format from a list of nodes (max 3 parents per node). 
         """
-        def _random_boolean_function(parent_nodes: list[str]):
+        def _random_boolean_function(parent_nodes):
             """Create radnom boolean function with !, &, | operators."""
             symbol_list = []
 
@@ -67,7 +110,7 @@ class BN():
 
                 # Random operator
                 op = self.rng.sample(["&","|"],1)[0]
-                symbol_list.append(f" {op} ")
+                symbol_list.append(" " + op + " ")
 
             return "".join(symbol_list)
         
@@ -75,7 +118,7 @@ class BN():
 
         # For each node generate its governing boolean function
         for i, node in enumerate(list_of_nodes):
-            list_of_candidates = list_of_nodes.copy()
+            list_of_candidates = copy.copy(list_of_nodes)
 
             # Drop node if no self parents allowed
             if not allow_self_parent:
@@ -98,7 +141,7 @@ class BN():
         return list_of_functions
     
 
-    def generate_graph_structure(self) -> nx.DiGraph:
+    def generate_graph_structure(self):
         """Generate directed graph structure of the boolean network in nx.DiGraph format."""
         G = nx.DiGraph()
 
@@ -116,13 +159,13 @@ class BN():
                 
 
     def __init__(self,
-                 n_nodes: int | None = None,
-                 bnet_path: str | None = None,
-                 list_of_nodes: list[str] | None = None,
-                 list_of_functions: list[str] | None = None,
-                 sync: bool = False,
-                 allow_self_parent: bool = False,
-                 seed: int = 42,
+                 n_nodes = None,
+                 bnet_path = None,
+                 list_of_nodes = None,
+                 list_of_functions = None,
+                 sync = False,
+                 allow_self_parent = False,
+                 seed = 42,
         ):
         """
         Class constructor
@@ -152,7 +195,7 @@ class BN():
         if list_of_nodes is not None and list_of_functions is not None:
             pass
         elif n_nodes:
-            list_of_nodes = [f"x{i}" for i in range(n_nodes)]
+            list_of_nodes = ["x"+str(i) for i in range(n_nodes)]
             list_of_functions = self.generate_random_boolean_functions(list_of_nodes, max_parents=3, allow_self_parent=allow_self_parent)
         elif bnet_path:
             list_of_nodes, list_of_functions = self.parse_bnet(bnet_path)
@@ -178,7 +221,7 @@ class BN():
         self.attractors = self.get_attractors()
 
     
-    def parse_bnet(self, bnet_path: str):
+    def parse_bnet(self, bnet_path):
         """
         Parse boolean network nodes and functions from .bnet format.
         """
@@ -198,7 +241,7 @@ class BN():
         return nodes, functions
 
 
-    def get_neighbor_states(self, state: tuple[int, ...]) -> set[tuple[int, ...]]:
+    def get_neighbor_states(self, state):
         """
         Computes the states reachable from the given state in one step of synchronous/asynchronous update.
     
@@ -233,7 +276,7 @@ class BN():
         return reachable
 
 
-    def generate_state_transition_system(self) -> nx.DiGraph:
+    def generate_state_transition_system(self):
         """
         Generates the state transition system of the Boolean network.
     
@@ -257,7 +300,7 @@ class BN():
         return G
     
 
-    def get_attractors(self) -> list[set[tuple[int]]]:
+    def get_attractors(self):
         """
         Computes the attractors of the Boolean network.
     
@@ -275,12 +318,12 @@ class BN():
 
     def generate_trajectory_dataset(
             self,
-            filepath: str,
-            n_trajectories: int = 1,
-            trajectory_len: int = 10,
-            sampling_frequency: int = 1,
-            random_seed: int = 42,
-        ) -> None:
+            filepath,
+            n_trajectories = 1,
+            trajectory_len = 10,
+            sampling_frequency = 1,
+            random_seed = 42,
+        ):
         """
         Generate and save trajectory dataset to a chosen filepath.
         Args
@@ -290,14 +333,14 @@ class BN():
         """
         node_rows = [[str(node)] for node in self.list_of_nodes]
         exp_row = [""]
-        trajectories = generate_random_paths(self.sts, n_trajectories, trajectory_len, seed=random_seed)
+        trajectories = generate_random_walks(self.sts, n_trajectories, trajectory_len, seed=random_seed)
         # Attractor states count per trajectory
         att_counts = []
         for i, traj in enumerate(trajectories):
             att_counts.append(0)
             for j, state in enumerate(traj):
                 if j%sampling_frequency == 0:
-                    exp_row.append(f"EXP{i}:{j//sampling_frequency}")
+                    exp_row.append("EXP"+str(i)+":"+str(j//sampling_frequency))
                     for node_state, node_row in zip(state, node_rows):
                         node_row.append((node_state))
                     # Check if state is in an attractor
@@ -317,20 +360,29 @@ class BN():
             # Header
             f.write("trajectory,attractor_state_percentage\n")
             for i in range(n_trajectories):
-                f.write(f"EXP{i},")
-                f.write(f"{att_counts[i]/(trajectory_len//sampling_frequency+1):.2f}\n")
+                f.write("EXP"+str(i)+",")
+                f.write(str(att_counts[i]/(trajectory_len/sampling_frequency+1.0))+"\n")
+
+
+    def save_graph_structure(self, path):
+        """Save graph structure as list of edge pairs."""
+        edges = sorted(self.graph_structure.edges())
+        with open(path, "w") as f:
+            for u, v in edges:
+                f.write(u + " " + v + "\n")
 
 
 def main(
-    outpath: str,
-    n_nodes: int | None = None,
-    bnet_path: str | None = None,
-    sync: bool = False,
-    allow_self_parent: bool = False,
-    n_trajectories: int = 1,
-    trajectory_len: int = 10,
-    sampling_frequency: int = 1,
-    seed: int = 42,
+    outpath,
+    n_nodes = None,
+    bnet_path = None,
+    sync = False,
+    allow_self_parent = False,
+    n_trajectories = 1,
+    trajectory_len = 10,
+    sampling_frequency = 1,
+    seed = 42,
+    graph_structure_path = None,
 ):
     """Create a random boolean network of n_nodes and random boolean functions, then generate a trajectory dataset."""
     bn = BN(
@@ -349,13 +401,16 @@ def main(
         random_seed=seed,
     )
 
+    if graph_structure_path:
+        bn.save_graph_structure(graph_structure_path)
+
 
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(description="Create a random Boolean network and generate trajectory datasets.")
 
-    parser.add_argument("-n", "--n-nodes", type=int, default=None, help="Number of nodes in the Boolean network.")
-    parser.add_argument("-b", "--bnet-path", type=str, default=None)
+    parser.add_argument("-n", "--n-nodes", type=int, default=None, help="Number of nodes in the random Boolean network.")
+    parser.add_argument("-b", "--bnet-path", type=str, default=None, help="A .bnet boolean network file (if n_nodes not provided)")
     parser.add_argument("-s", "--sync", action="store_true", help="Use synchronous updates (default: asynchronous).")
     parser.add_argument("-p", "--allow-self-parent", action="store_true", help="Allow nodes to have themselves as parents.")
     parser.add_argument("-r", "--seed", type=int, help="Random seed for network and trajectory generation.")
@@ -363,6 +418,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--n-trajectories", type=int, default=1, help="Number of trajectories to generate (default: 1).")
     parser.add_argument("-l", "--trajectory-len", type=int, default=10, help="Length of each trajectory (default: 10).")
     parser.add_argument("-f", "--sampling-frequency", type=int, default=1, help="Sampling frequency for trajectories (default: 1).")
+    parser.add_argument("-g", "--graph-structure-path", type=str, help="Optional: path to save boolean network grapth structure.")
 
     args = parser.parse_args()
 
