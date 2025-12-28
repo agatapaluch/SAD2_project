@@ -122,3 +122,5 @@ The script is used to generate a random boolean network and sample a random traj
 python scripts/generate_bn_trajectory_dataset.py --help
 ```
 Additionally, the boolean network with all of its methods is implemented as the `BN()` class in the script, so that it can be used in other scripts, e.g. for comparison of different boolean networks.
+
+Constructing a `BN()` object with a higher number of nodes (>12) can be time consuming. When computing multiple trajectory datasets from one boolean network architecture, it is recomended to first: construct the `BN()` object, second: sample multiple datasets using the same `BN()` instance with `BN.generate_trajectory_dataset()` method.
