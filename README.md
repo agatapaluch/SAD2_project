@@ -1,4 +1,4 @@
-# Environment confguration
+# (OPTION 1) Environment confguration  (IGNORE IF U ARE USING MacOS)
 As BNfinder2 runs on Python 2 we have to set up the environment.
 
 ## Install pyenv
@@ -71,6 +71,49 @@ Check if it worked:
 ```bash
 bnf --help
 ```
+
+
+## (OPTION 2) Environment confguration on macos using Docker
+
+# Prerequisites
+
+Docker Desktop for macOS:
+https://www.docker.com/products/docker-desktop/
+
+Verify Docker is installed:
+
+```bash
+docker --version
+
+# Build image
+
+docker build --platform=linux/amd64 -t bnfinder2 .
+
+
+# Run container from image
+
+docker run -it --rm --platform=linux/amd64 \
+  -v "$PWD":/work -w /work \
+  bnfinder2
+
+
+# Final checks
+python2.7 --version
+
+# Should print something like: Python 2.7.18
+
+bnf --help
+
+# Should print options for BNfinder library
+```
+
+
+# How to run
+Enter docker container by folowing above commands and run:
+```bash
+python2.7 src/create_random_network.py 
+```
+
 
 # Run generate_bn_trajectory_dataset.py script
 This script requires python3 and its dependencies are listed in `requirements3.txt` file.
