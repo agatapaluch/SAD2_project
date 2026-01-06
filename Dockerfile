@@ -24,7 +24,8 @@ RUN python2.7 -m pip install --no-cache-dir "pip<21" "setuptools<45" wheel
 RUN python2.7 -m pip install --no-cache-dir "numpy==1.16.6" \
     && python2.7 -m pip install --no-cache-dir "scipy==1.2.3" \
     && python2.7 -m pip install --no-cache-dir "BNfinder==2.0.4" \
-    && python2.7 -m pip install --no-cache-dir "networkx==2.2" "boolean.py==3.8"
-
+    && python2.7 -m pip install --no-cache-dir "networkx==2.2" "boolean.py==3.8" \
+    && python2.7 -m pip install --no-cache-dir "pandas==0.24.2" "tqdm==4.64.1" \
+    && python2.7 -m pip install --no-cache-dir "matplotlib==2.2.5" "seaborn==0.9.1"
 # Default to bash so you can run commands interactively
 CMD ["bash"]

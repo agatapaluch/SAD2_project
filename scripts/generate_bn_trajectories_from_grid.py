@@ -94,14 +94,14 @@ if __name__ == "__main__":
     # Construct a parameter grid
     param_grid = {
         # Network params
-        "n_nodes": list(range(5,10)),   # Using large networks (n_nodes > 12) can result in a few minute wait (exponential complexity), so make a coffee
+        "n_nodes": [5,8,11,16],   # Using large networks (n_nodes > 12) can result in a few minute wait (exponential complexity), so make a coffee
         "sync": [True, False],
         "allow_self_parent": [False],  # BNFinder does not allow self loops by default (can be turned on but most biological models don't have them either)
         "network_seed": [0,1],
         # Trajectory params
-        "n_trajectories": [1,3,5],
-        "trajectory_len": [5,10,15,20],
-        "sampling_frequency": [1,2,3],
+        "n_trajectories": [1, 5, 20],
+        "trajectory_len": [10, 20, 100],
+        "sampling_frequency": [1,3],
         "trajectory_seed": [0],
     }
 

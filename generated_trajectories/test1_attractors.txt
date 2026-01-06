@@ -1,2 +1,0 @@
-trajectory,attractor_state_percentage
-EXP0,0.818181818182
