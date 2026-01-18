@@ -27,19 +27,19 @@ def parse_args():
         "--input",
         "-i",
         required=True,
-        help="Path to input CSV file containing numerical values"
+        help="Path to input CSV file containing numerical values",
     )
     parser.add_argument(
         "--corr",
         "-c",
         required=True,
-        help="Path to output CSV file to save Spearman correlation matrix"
+        help="Path to output CSV file to save Spearman correlation matrix",
     )
     parser.add_argument(
         "--pvals",
         "-p",
         required=True,
-        help="Path to output CSV file to save Spearman correlation p-value matrix"
+        help="Path to output CSV file to save Spearman correlation p-value matrix",
     )
     return parser.parse_args()
 
@@ -51,7 +51,9 @@ def main():
     df = pd.read_csv(args.input)
 
     # Compute Spearman correlation
-    corr, pvals = spearman_corr_with_pvalues(df, score_cols=["edge_jaccard_distance", "graph_edit_distance"])
+    corr, pvals = spearman_corr_with_pvalues(
+        df, score_cols=["edge_jaccard_distance", "graph_edit_distance"]
+    )
 
     # Save to file
     corr.to_csv(args.corr)
