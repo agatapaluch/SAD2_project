@@ -1,0 +1,28 @@
+Normality tests for BDE
+
+Column: edge_jaccard_distance
+Sample size: n = 252
+Shapiro-Wilk statistic = 0.830424249172
+p-value = 6.71887603707e-16
+Result: Deviates from normality
+
+Column: graph_edit_distance
+Sample size: n = 252
+Shapiro-Wilk statistic = 0.882878005505
+p-value = 5.05004187339e-13
+Result: Deviates from normality
+
+
+Normality tests for MDL
+
+Column: edge_jaccard_distance
+Sample size: n = 252
+Shapiro-Wilk statistic = 0.870141744614
+p-value = 8.56991276446e-14
+Result: Deviates from normality
+
+Column: graph_edit_distance
+Sample size: n = 252
+Shapiro-Wilk statistic = 0.876196503639
+p-value = 1.96042008039e-13
+Result: Deviates from normality

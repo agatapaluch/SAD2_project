@@ -3,3 +3,5 @@ boolean.py==3.1
 networkx==2.2
 tqdm==4.64.1
 pandas==0.24.2
+matplotlib==2.2.5
+seaborn==0.9.1

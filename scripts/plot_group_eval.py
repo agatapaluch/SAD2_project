@@ -51,6 +51,16 @@ def plot_scatter(df, x, y, size, hue, title, out_path):
     plt.close()
 
 
+
+def plot_scatter_with_regression(df, x, y, title, out_path, hue):
+    plt.figure(figsize=(7, 5))
+    sns.regplot(data=df, x=x, y=y, scatter_kws={"alpha": 0.6, "hue": hue})
+    plt.title(title)
+    plt.tight_layout()
+    plt.savefig(out_path)
+    plt.close()
+
+
 def main():
     parser = argparse.ArgumentParser(description="Plot grouped evaluation metrics.")
     parser.add_argument("--group-csv", required=True, help="Path to group_eval.csv")
@@ -171,6 +181,30 @@ def main():
             value="graph_edit_distance",
             title="GED by #nodes (group means)",
             out_path=out,
+        )
+
+    # Linreg scatterplot: Jaccard by attractor_state_percentage
+    out = os.path.join(args.out_dir, "regplot_jaccard_attractors{}.png".format(label))
+    if "attractor_state_percentage" in df.columns:
+        plot_scatter_with_regression(
+            df,
+            x="attractor_state_percentage",
+            y="edge_jaccard_distance",
+            title="Edge Jaccard by #attractor_state_percentage",
+            out_path=out,
+            hue="sync",
+        )
+
+    # Linreg scatterplot: GED by attractor_state_percentage
+    out = os.path.join(args.out_dir, "regplot_ged_attractors{}.png".format(label))
+    if "attractor_state_percentage" in df.columns:
+        plot_scatter_with_regression(
+            df,
+            x="attractor_state_percentage",
+            y="graph_edit_distance",
+            title="GED by #attractor_state_percentage",
+            out_path=out,
+            hue="sync",
         )
 
     print("Plots written to {}".format(args.out_dir))

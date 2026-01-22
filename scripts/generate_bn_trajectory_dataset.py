@@ -54,55 +54,56 @@ def generate_random_walks(graph, n_walks, walk_length, seed=None):
     return walks
 
 
-class BN():
+class BN:
 
     __bool_algebra = boolean.BooleanAlgebra()
 
     def __int_to_state(self, x):
         """
         Helper method for converting a non-negative integer into a state in the form of a tuple of 0s and 1s.
-    
+
             Args:
                 x (int): A state number
-    
+
             Returns:
                 tuple[int, ...]: A tuple of 0s and 1s representing the Boolean network state.
         """
-        binary_str = format(x,'0'+str(self.num_nodes)+'b')
+        binary_str = format(x, "0" + str(self.num_nodes) + "b")
         state = [int(char) for char in binary_str]
 
         return tuple(state)
-
 
     @staticmethod
     def __state_to_binary_str(state):
         """
         Converts a Boolean network state from a tuple of 0s and 1s into a binary string.
-    
+
             Args:
                 state (tuple[int, ...]): A tuple of 0s and 1s representing the Boolean network state
-    
+
             Returns:
                 str: A binary string representing the Boolean network state
         """
-        bin_str = ''
+        bin_str = ""
         for bit in state:
             bin_str += str(bit)
-        
-        return bin_str
-    
 
-    def generate_random_boolean_functions(self, list_of_nodes, max_parents, allow_self_parent = False):
+        return bin_str
+
+    def generate_random_boolean_functions(
+        self, list_of_nodes, max_parents, allow_self_parent=False
+    ):
         """
-        Generates random boolean functions in boolean.py format from a list of nodes (max 3 parents per node). 
+        Generates random boolean functions in boolean.py format from a list of nodes (max 3 parents per node).
         """
+
         def _random_boolean_function(parent_nodes):
             """Create radnom boolean function with !, &, | operators."""
             symbol_list = []
 
             for i, node in enumerate(parent_nodes):
                 # Random negation
-                neg = self.rng.sample(["","!"],1)[0]
+                neg = self.rng.sample(["", "!"], 1)[0]
                 variable = neg + node
 
                 symbol_list.append(variable)
@@ -111,11 +112,11 @@ class BN():
                     break
 
                 # Random operator
-                op = self.rng.sample(["&","|"],1)[0]
+                op = self.rng.sample(["&", "|"], 1)[0]
                 symbol_list.append(" " + op + " ")
 
             return "".join(symbol_list)
-        
+
         list_of_functions = []
 
         # For each node generate its governing boolean function
@@ -141,7 +142,6 @@ class BN():
             list_of_functions.append(func)
 
         return list_of_functions
-    
 
     def generate_graph_structure(self):
         """Generate directed graph structure of the boolean network in nx.DiGraph format."""
@@ -151,7 +151,9 @@ class BN():
         edges = []
 
         for node, fun in zip(nodes, self.functions):
-            parents = [str(sym).strip("~") for sym in fun.get_literals()]   # Get negatively ans positively correlated parents
+            parents = [
+                str(sym).strip("~") for sym in fun.get_literals()
+            ]  # Get negatively ans positively correlated parents
             for parent in parents:
                 edges.append((str(parent), node))
 
@@ -159,20 +161,20 @@ class BN():
         G.add_edges_from(edges)
 
         return G
-                
 
-    def __init__(self,
-                 n_nodes = None,
-                 bnet_path = None,
-                 list_of_nodes = None,
-                 list_of_functions = None,
-                 sync = False,
-                 allow_self_parent = False,
-                 seed = 42,
-        ):
+    def __init__(
+        self,
+        n_nodes=None,
+        bnet_path=None,
+        list_of_nodes=None,
+        list_of_functions=None,
+        sync=False,
+        allow_self_parent=False,
+        seed=42,
+    ):
         """
         Class constructor
-    
+
             Args:
                 OPTION 1:
                 n_nodes (int): number of nodes to generate a random boolean network from.
@@ -189,7 +191,7 @@ class BN():
                 sync (bool): Boolean of whether to use synchronous (True) or asynchronous (False) state transition system
                 allow_self_parent (bool): True if allow for a node to be its own parent (regulator) (default False)
                 seed (int): random seed for boolean function generation (if list of functions is not provided)
-             
+
         """
         # Set random seed
         self.rng = random.Random(seed)
@@ -198,12 +200,16 @@ class BN():
         if list_of_nodes is not None and list_of_functions is not None:
             pass
         elif n_nodes:
-            list_of_nodes = ["x"+str(i) for i in range(n_nodes)]
-            list_of_functions = self.generate_random_boolean_functions(list_of_nodes, max_parents=3, allow_self_parent=allow_self_parent)
+            list_of_nodes = ["x" + str(i) for i in range(n_nodes)]
+            list_of_functions = self.generate_random_boolean_functions(
+                list_of_nodes, max_parents=3, allow_self_parent=allow_self_parent
+            )
         elif bnet_path:
             list_of_nodes, list_of_functions = self.parse_bnet(bnet_path)
         else:
-            raise Exception("Problem loading BN: no node or function list provided. Specify either n_nodes, .bnet filepath or list of nodes and functions.")
+            raise Exception(
+                "Problem loading BN: no node or function list provided. Specify either n_nodes, .bnet filepath or list of nodes and functions."
+            )
 
         self.num_nodes = len(list_of_nodes)
 
@@ -213,17 +219,16 @@ class BN():
         for node_name in list_of_nodes:
             node = self.__bool_algebra.Symbol(node_name)
             self.list_of_nodes.append(node)
-        
+
         self.functions = []
         for fun in list_of_functions:
-            self.functions.append(self.__bool_algebra.parse(fun,simplify=True))
+            self.functions.append(self.__bool_algebra.parse(fun, simplify=True))
 
         self.graph_structure = self.generate_graph_structure()
         self.sync = sync
         self.sts = self.generate_state_transition_system()
         self.attractors = self.get_attractors()
 
-    
     def parse_bnet(self, bnet_path):
         """
         Parse boolean network nodes and functions from .bnet format.
@@ -243,21 +248,23 @@ class BN():
 
         return nodes, functions
 
-
     def get_neighbor_states(self, state):
         """
         Computes the states reachable from the given state in one step of synchronous/asynchronous update.
-    
+
             Args:
                 state (tuple[int, ...]): A tuple of 0s and 1s representing the Boolean network state.
-    
+
             Returns:
                 set[tuple[int, ...]]: A set of tuples of 0s and 1s representing the Boolean network states reachable
                     in one step from the given state.
         """
         reachable = set([])
 
-        state_dict = {node: (self.__bool_algebra.TRUE if val == 1 else self.__bool_algebra.FALSE) for node, val in zip(self.list_of_nodes, state)}
+        state_dict = {
+            node: (self.__bool_algebra.TRUE if val == 1 else self.__bool_algebra.FALSE)
+            for node, val in zip(self.list_of_nodes, state)
+        }
 
         # Synchronous update
         if self.sync:
@@ -273,19 +280,18 @@ class BN():
                 i_val = int(fun.subs(state_dict).simplify() == self.__bool_algebra.TRUE)
                 i_state = list(state)
                 i_state[i] = i_val
-                
+
                 reachable.add(tuple(i_state))
 
         return reachable
 
-
     def generate_state_transition_system(self):
         """
         Generates the state transition system of the Boolean network.
-    
+
             Returns:
                 nx.DiGraph: NetworkX DiGraph object representing the state transition system.
-    
+
         """
         G = nx.DiGraph()
 
@@ -295,18 +301,22 @@ class BN():
         for node in tqdm(nodes, desc="State transition system generation"):
             neighbors = self.get_neighbor_states(node)
             for neighbor in neighbors:
-                edges.add((self.__state_to_binary_str(node), self.__state_to_binary_str(neighbor)))
+                edges.add(
+                    (
+                        self.__state_to_binary_str(node),
+                        self.__state_to_binary_str(neighbor),
+                    )
+                )
 
         G.add_nodes_from([self.__state_to_binary_str(node) for node in nodes])
         G.add_edges_from(edges)
 
         return G
-    
 
     def get_attractors(self):
         """
         Computes the attractors of the Boolean network.
-    
+
             Returns:
                 list[set[tuple[int]]]: A list of sts attractors. Each attractor is a set of states.
         """
@@ -315,18 +325,17 @@ class BN():
             attractors.append(attractor)
 
         return attractors
-    
 
     def generate_trajectory_dataset(
-            self,
-            filepath,
-            n_trajectories = 1,
-            trajectory_len = 10,
-            sampling_frequency = 1,
-            random_seed = 42,
-            return_attractor_percentage = False,
-            save_attractor_percengage = True,
-        ):
+        self,
+        filepath,
+        n_trajectories=1,
+        trajectory_len=10,
+        sampling_frequency=1,
+        random_seed=42,
+        return_attractor_percentage=False,
+        save_attractor_percengage=True,
+    ):
         """
         Generate and save trajectory dataset to a chosen filepath.
         Args
@@ -336,43 +345,49 @@ class BN():
         """
         node_rows = [[str(node)] for node in self.list_of_nodes]
         exp_row = [""]
-        trajectories = generate_random_walks(self.sts, n_trajectories, trajectory_len, seed=random_seed)
+        trajectories = generate_random_walks(
+            self.sts, n_trajectories, trajectory_len, seed=random_seed
+        )
         # Attractor states count per trajectory
         att_counts = []
         for i, traj in enumerate(trajectories):
             att_counts.append(0)
             for j, state in enumerate(traj):
-                if j%sampling_frequency == 0:
-                    exp_row.append("EXP"+str(i)+":"+str(j))   #//sampling_frequency))  NOTE bnf also works with larger sampling intervals
+                if j % sampling_frequency == 0:
+                    exp_row.append(
+                        "EXP" + str(i) + ":" + str(j)
+                    )  # //sampling_frequency))  NOTE bnf also works with larger sampling intervals
                     for node_state, node_row in zip(state, node_rows):
                         node_row.append((node_state))
                     # Check if state is in an attractor
-                    att_counts[i] += int(any([state in attractor for attractor in self.attractors]))
-        
+                    att_counts[i] += int(
+                        any([state in attractor for attractor in self.attractors])
+                    )
+
         # Save the dataset
         with open(filepath, "w") as f:
             f.write("\t".join(exp_row))
             for node_row in node_rows:
                 f.write("\n" + "\t".join(node_row))
 
-
         if save_attractor_percengage:
             # Check and save the percentage of attractor states per trajectory
             name, ext = os.path.splitext(filepath)
             att_filepath = name + "_attractors" + ext
-            
+
             with open(att_filepath, "w") as f:
                 # Header
                 f.write("trajectory,attractor_state_percentage\n")
                 for i in range(n_trajectories):
-                    f.write("EXP"+str(i)+",")
-                    f.write(str(att_counts[i]/(trajectory_len/sampling_frequency+1.0))+"\n")
-
+                    f.write("EXP" + str(i) + ",")
+                    f.write(
+                        str(att_counts[i] / (trajectory_len / sampling_frequency + 1.0))
+                        + "\n"
+                    )
 
         if return_attractor_percentage:
             # Return attractor percentage across all trajectories
-            return sum(att_counts) / (len(node_rows[0])-1.0)
-  
+            return sum(att_counts) / (len(node_rows[0]) - 1.0)
 
     def save_graph_structure(self, path):
         """
@@ -391,19 +406,18 @@ class BN():
             for node, fun in zip(self.node_names, self.functions):
                 f.write("{} = {}\n".format(node, str(fun)))
 
-    
-    
+
 def main(
     outpath,
-    n_nodes = None,
-    bnet_path = None,
-    sync = False,
-    allow_self_parent = False,
-    n_trajectories = 1,
-    trajectory_len = 10,
-    sampling_frequency = 1,
-    seed = 42,
-    graph_structure_path = None,
+    n_nodes=None,
+    bnet_path=None,
+    sync=False,
+    allow_self_parent=False,
+    n_trajectories=1,
+    trajectory_len=10,
+    sampling_frequency=1,
+    seed=42,
+    graph_structure_path=None,
 ):
     """Create a random boolean network of n_nodes and random boolean functions, then generate a trajectory dataset."""
     bn = BN(
@@ -413,7 +427,7 @@ def main(
         allow_self_parent=allow_self_parent,
         seed=seed,
     )
-    
+
     bn.generate_trajectory_dataset(
         filepath=outpath,
         n_trajectories=n_trajectories,
@@ -427,21 +441,79 @@ def main(
 
 
 if __name__ == "__main__":
-# simple usage case:
-# python2.7 scripts/generate_bn_trajectory_dataset.py -o generated_trajectories/test1 -g graphs/test1
+    # simple usage case:
+    # python2.7 scripts/generate_bn_trajectory_dataset.py -o generated_trajectories/test1 -g graphs/test1
 
-    parser = argparse.ArgumentParser(description="Create a random Boolean network and generate trajectory datasets.")
+    parser = argparse.ArgumentParser(
+        description="Create a random Boolean network and generate trajectory datasets."
+    )
 
-    parser.add_argument("-n", "--n-nodes", type=int, default=5, help="Number of nodes in the random Boolean network (default: 5).")
-    parser.add_argument("-b", "--bnet-path", type=str, default=None, help="A .bnet boolean network file (if n_nodes not provided)")
-    parser.add_argument("-s", "--sync", action="store_true", help="Use synchronous updates (default: asynchronous).")
-    parser.add_argument("-p", "--allow-self-parent", action="store_true", help="Allow nodes to have themselves as parents.")
-    parser.add_argument("-r", "--seed", type=int, help="Random seed for network and trajectory generation.")
-    parser.add_argument("-o", "--outpath", type=str, required=True, help="Output path for the generated trajectory dataset.")
-    parser.add_argument("-t", "--n-trajectories", type=int, default=1, help="Number of trajectories to generate (default: 1).")
-    parser.add_argument("-l", "--trajectory-len", type=int, default=10, help="Length of each trajectory (default: 10).")
-    parser.add_argument("-f", "--sampling-frequency", type=int, default=1, help="Sampling frequency for trajectories (default: 1).")
-    parser.add_argument("-g", "--graph-structure-path", type=str, help="Optional: path to save boolean network grapth structure.")
+    parser.add_argument(
+        "-n",
+        "--n-nodes",
+        type=int,
+        default=None,
+        help="Number of nodes in the random Boolean network (default: 5).",
+    )
+    parser.add_argument(
+        "-b",
+        "--bnet-path",
+        type=str,
+        default=None,
+        help="A .bnet boolean network file (if n_nodes not provided)",
+    )
+    parser.add_argument(
+        "-s",
+        "--sync",
+        action="store_true",
+        help="Use synchronous updates (default: asynchronous).",
+    )
+    parser.add_argument(
+        "-p",
+        "--allow-self-parent",
+        action="store_true",
+        help="Allow nodes to have themselves as parents.",
+    )
+    parser.add_argument(
+        "-r",
+        "--seed",
+        type=int,
+        help="Random seed for network and trajectory generation.",
+    )
+    parser.add_argument(
+        "-o",
+        "--outpath",
+        type=str,
+        required=True,
+        help="Output path for the generated trajectory dataset.",
+    )
+    parser.add_argument(
+        "-t",
+        "--n-trajectories",
+        type=int,
+        default=1,
+        help="Number of trajectories to generate (default: 1).",
+    )
+    parser.add_argument(
+        "-l",
+        "--trajectory-len",
+        type=int,
+        default=10,
+        help="Length of each trajectory (default: 10).",
+    )
+    parser.add_argument(
+        "-f",
+        "--sampling-frequency",
+        type=int,
+        default=1,
+        help="Sampling frequency for trajectories (default: 1).",
+    )
+    parser.add_argument(
+        "-g",
+        "--graph-structure-path",
+        type=str,
+        help="Optional: path to save boolean network grapth structure.",
+    )
 
     args = parser.parse_args()
 

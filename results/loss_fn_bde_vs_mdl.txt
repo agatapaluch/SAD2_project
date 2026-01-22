@@ -1,0 +1,19 @@
+=== edge_jaccard_distance ===
+n1 = 252 , n2 = 252
+Median (BDe) = 0.875
+Median (MDL) = 0.8481
+Median difference = 0.0269
+Mann-Whitney U = 34339.0
+p-value = 0.10744697913763432
+Rank-biserial correlation = -0.0815
+Result: no significant difference in medians
+
+=== graph_edit_distance ===
+n1 = 252 , n2 = 252
+Median (BDe) = 11.0
+Median (MDL) = 11.0
+Median difference = 0.0
+Mann-Whitney U = 32171.0
+p-value = 0.7976978089834744
+Rank-biserial correlation = -0.0132
+Result: no significant difference in medians
