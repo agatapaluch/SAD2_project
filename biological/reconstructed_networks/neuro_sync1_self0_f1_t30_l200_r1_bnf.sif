@@ -1,0 +1,15 @@
+v_Adenylate_cyclase	+	v_Protein_Kinase_A
+v_Calcineurin	-	v_DARPP32
+v_Calcium	+	v_Calcineurin
+v_DARPP32	-	v_Protein_Phosphatase_1
+v_Dopamine	+	v_COMT
+v_Dopamine	+	v_Dopamine_Receptor_1
+v_Dopamine	+	v_Dopamine_Receptor_2
+v_Dopamine_Receptor_1	+	v_Adenylate_cyclase
+v_Dopamine_Receptor_2	-	v_Adenylate_cyclase
+v_Dopamine_Receptor_2	+	v_Phospholipase_C
+v_Glutamate_Receptor	+	v_Calcium
+v_Glutamate_Receptor	+	v_Packaging_Proteins
+v_Packaging_Proteins	+	v_Exocytosis
+v_Phospholipase_C	+	v_Calcium
+v_Protein_Kinase_A	+	v_DARPP32
