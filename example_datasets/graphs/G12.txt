@@ -1,0 +1,24 @@
+# EDGES
+x0 x2
+x10 x5
+x2 x10
+x3 x1
+x3 x5
+x4 x1
+x4 x7
+x5 x2
+x7 x2
+x8 x1
+
+# RULES
+x0 = 1
+x1 = x8|(~x3&x4)
+x2 = ~x0|x5|x7
+x3 = 1
+x4 = 1
+x5 = x10&x3
+x6 = 1
+x7 = x4
+x8 = 1
+x9 = 1
+x10 = x2
